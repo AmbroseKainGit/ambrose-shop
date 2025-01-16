@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.ambrose.ambroseshop.exceptions.ProductNotFoundException;
+import com.ambrose.ambroseshop.exceptions.ResourceNotFoundException;
 import com.ambrose.ambroseshop.model.Category;
 import com.ambrose.ambroseshop.model.Product;
 import com.ambrose.ambroseshop.repository.CategoryRepository;
@@ -43,17 +43,11 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product getProductById(Long productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-    }
-
-    @Override
     public void deleteProduct(Long productId) {
         productRepository.findById(productId)
                 .ifPresentOrElse(productRepository::delete,
                         () -> {
-                            throw new ProductNotFoundException("Product not found");
+                            throw new ResourceNotFoundException("Product not found");
                         });
     }
 
@@ -62,7 +56,7 @@ public class ProductService implements IProductService {
         return productRepository.findById(productId)
                 .map(existingProduct -> updateExistingProduct(existingProduct, request))
                 .map(productRepository::save)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
     }
 
     private Product updateExistingProduct(Product existingProduct, ProductUpdateRequest request) {
@@ -81,6 +75,13 @@ public class ProductService implements IProductService {
         return productRepository.findAll();
     }
 
+    
+    @Override
+    public Product getProductById(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+    }
+
     @Override
     public List<Product> getProductsByCategory(String category) {
         return productRepository.findByCategoryName(category);
@@ -88,7 +89,7 @@ public class ProductService implements IProductService {
 
     @Override
     public List<Product> getProductsByBrand(String brand) {
-        return productRepository.findByBrandName(brand);
+        return productRepository.findByBrand(brand);
     }
 
     @Override

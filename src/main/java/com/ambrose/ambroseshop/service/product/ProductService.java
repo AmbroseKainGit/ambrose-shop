@@ -3,12 +3,18 @@ package com.ambrose.ambroseshop.service.product;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.ambrose.ambroseshop.dto.CategoryDto;
+import com.ambrose.ambroseshop.dto.ImageDto;
+import com.ambrose.ambroseshop.dto.ProductDto;
 import com.ambrose.ambroseshop.exceptions.ResourceNotFoundException;
 import com.ambrose.ambroseshop.model.Category;
+import com.ambrose.ambroseshop.model.Image;
 import com.ambrose.ambroseshop.model.Product;
 import com.ambrose.ambroseshop.repository.CategoryRepository;
+import com.ambrose.ambroseshop.repository.ImageRepository;
 import com.ambrose.ambroseshop.repository.ProductRepository;
 import com.ambrose.ambroseshop.request.AddProductRequest;
 import com.ambrose.ambroseshop.request.ProductUpdateRequest;
@@ -21,6 +27,8 @@ public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ImageRepository imageRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public Product createProduct(AddProductRequest request) {
@@ -75,7 +83,6 @@ public class ProductService implements IProductService {
         return productRepository.findAll();
     }
 
-    
     @Override
     public Product getProductById(Long productId) {
         return productRepository.findById(productId)
@@ -110,6 +117,26 @@ public class ProductService implements IProductService {
     @Override
     public Long countProductsByBrandAndName(String brand, String name) {
         return productRepository.countProductsByBrandAndName(brand, name);
+    }
+
+    @Override
+    public List<ProductDto> getConvertedProducts(List<Product> products) {
+        return products.stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+
+    @Override
+    public ProductDto convertToDto(Product product) {
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+         CategoryDto categoryDto = modelMapper.map(product.getCategory(), CategoryDto.class);
+        productDto.setCategory(categoryDto);
+        List<Image> images = imageRepository.findByProductId(product.getId());
+        List<ImageDto> imageDtos = images.stream()
+                .map(image -> modelMapper.map(image, ImageDto.class))
+                .toList();
+        productDto.setImages(imageDtos);
+        return productDto;
     }
 
 }

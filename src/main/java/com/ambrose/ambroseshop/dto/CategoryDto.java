@@ -3,8 +3,7 @@ package com.ambrose.ambroseshop.dto;
 import lombok.Data;
 
 @Data
-public class ImageDto {
+public class CategoryDto {
     private Long id;
-    private String fileName;
-    private String downloadUri;
+    private String name;
 }

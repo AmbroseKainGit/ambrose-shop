@@ -57,8 +57,8 @@ public class ImageService implements IImageService {
                 savedImage.setDownloadUri(buildDownloadUrl + savedImage.getId());
                 imageRepository.save(savedImage);
                 ImageDto imageDto = new ImageDto();
-                imageDto.setImageId(savedImage.getId());
-                imageDto.setImageName(savedImage.getFileName());
+                imageDto.setId(savedImage.getId());
+                imageDto.setFileName(savedImage.getFileName());
                 imageDto.setDownloadUri(savedImage.getDownloadUri());
                 savedImagesDto.add(imageDto);
             } catch (IOException | SQLException e) {

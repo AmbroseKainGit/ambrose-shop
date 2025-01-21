@@ -1,6 +1,7 @@
 package com.ambrose.ambroseshop.service.cart;
 
 import java.math.BigDecimal;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,13 @@ import lombok.RequiredArgsConstructor;
 public class CartService implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final AtomicLong cartIdGenerator = new AtomicLong(0);
 
     @Override
     public Cart getCartById(Long id) {
         return cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
-        // Cart cart = cartRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+        // Cart cart = cartRepository.findById(id).orElseThrow(() -> new
+        // ResourceNotFoundException("Cart not found"));
         // BigDecimal totalAmount = cart.getTotalAmount();
         // cart.setTotalAmount(totalAmount);
         // return cartRepository.save(cart);
@@ -37,6 +40,13 @@ public class CartService implements ICartService {
     @Override
     public BigDecimal getTotalPrice(Long id) {
         return getCartById(id).getTotalAmount();
+    }
+
+    @Override
+    public Long initializeNewCart() {
+        Cart cart = new Cart();
+        cart.setId(cartIdGenerator.incrementAndGet());
+        return cartRepository.save(cart).getId();
     }
 
 }
